@@ -1,0 +1,7 @@
+{
+  "category.spectrahud": "NVP-assist",
+  "key.spectrahud.edit_hud": "Открыть режим редактирования HUD",
+  "key.spectrahud.toggle_hud": "Включить/выключить HUD",
+  "key.spectrahud.replay_clip": "Сохранить клип ReplayMod",
+  "key.spectrahud.open_suspect_menu": "ПКМ по подозреваемому"
+}

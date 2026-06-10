@@ -1,0 +1,39 @@
+{
+	"schemaVersion": 1,
+	"id": "spectrahud",
+	"version": "${version}",
+	"name": "NVP-assist",
+	"description": "Компактный клиентский HUD для НВП-модераторов: подозреваемый, AC/риск, Reach / Trigger, подсветка и задержки попаданий.",
+	"authors": [
+		"avn"
+	],
+	"license": "CC0-1.0",
+	"icon": "assets/spectrahud/icon.png",
+	"environment": "client",
+	"entrypoints": {
+		"main": [
+			"avn.spectrahud.SpectraHud"
+		],
+		"client": [
+			"avn.spectrahud.client.SpectraHudClient"
+		],
+		"modmenu": [
+			"avn.spectrahud.client.config.SpectraHudModMenu"
+		]
+	},
+	"mixins": [
+		{
+			"config": "spectrahud.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.14.21",
+		"minecraft": "~1.20.1",
+		"java": ">=17",
+		"fabric-api": ">=0.83.0+1.20.1"
+	},
+	"suggests": {
+		"modmenu": ">=7.0.0"
+	}
+}
