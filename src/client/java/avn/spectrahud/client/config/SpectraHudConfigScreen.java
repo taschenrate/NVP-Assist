@@ -28,54 +28,75 @@ public class SpectraHudConfigScreen extends Screen {
 
 	@Override
 	protected void init() {
-		int left = this.width / 2 - 158;
-		int right = this.width / 2 + 2;
-		int y = 36;
-		int width = 156;
+		int width = Math.min(380, this.width - 40);
+		int x = this.width / 2 - width / 2;
+		int y = 34;
 		int row = 24;
 
-		addToggle(left, y, width, "HUD", () -> config.hudEnabled, value -> config.hudEnabled = value);
+		addToggle(x, y, width, "HUD", () -> config.hudEnabled, value -> config.hudEnabled = value);
+		y += row;
+
 		addDrawableChild(ButtonWidget.builder(modeText(), button -> {
 			config.hudMode = config.hudMode.next();
 			button.setMessage(modeText());
 			manager.save();
-		}).dimensions(right, y, width, 20).build());
+		}).dimensions(x, y, width, 20).build());
 
 		y += row;
-		addToggle(left, y, width, "Подсветка подозреваемого", () -> config.suspectOutline, value -> config.suspectOutline = value);
-		addToggle(right, y, width, "Луч взгляда", () -> config.showViewRay, value -> config.showViewRay = value);
+		addToggle(x, y, width, "Подсветка подозреваемого", () -> config.suspectOutline, value -> config.suspectOutline = value);
 
 		y += row;
-		addToggle(left, y, width, "Скрывать голограмму", () -> config.hideAnticheatHologram, value -> config.hideAnticheatHologram = value);
-		addToggle(right, y, width, "Полоса задержки", () -> config.showHitDelayStrip, value -> config.showHitDelayStrip = value);
+		addToggle(x, y, width, "Луч взгляда", () -> config.showViewRay, value -> config.showViewRay = value);
 
 		y += row;
-		addToggle(left, y, width, "ReplayMod-клипы", () -> config.replayClips, value -> config.replayClips = value);
-		addColorButton(right, y, width, "Цвет подозреваемого", SUSPECT_PRESETS, () -> config.suspectColor, color -> config.suspectColor = color);
+		addToggle(x, y, width, "Скрывать голограмму", () -> config.hideAnticheatHologram, value -> config.hideAnticheatHologram = value);
 
 		y += row;
-		addToggle(left, y, width, "Авто-TPO к подозреваемому", () -> config.autoTeleportToSuspect, value -> config.autoTeleportToSuspect = value);
-		addDrawableChild(new OpacitySlider(right, y, width, 20, config));
+		addToggle(x, y, width, "Полоса задержки", () -> config.showHitDelayStrip, value -> config.showHitDelayStrip = value);
+
+		y += row;
+		addToggle(x, y, width, "ReplayMod-клипы", () -> config.replayClips, value -> config.replayClips = value);
+
+		y += row;
+		addToggle(x, y, width, "Авто-TPO к подозреваемому", () -> config.autoTeleportToSuspect, value -> config.autoTeleportToSuspect = value);
+
+		y += row;
+		addColorButton(x, y, width, "Цвет подозреваемого", SUSPECT_PRESETS, () -> config.suspectColor, color -> config.suspectColor = color);
+
+		y += row;
+		addDrawableChild(new OpacitySlider(x, y, width, 20, config));
 
 		y += row;
 		addDrawableChild(ButtonWidget.builder(Text.literal("Сброс позиции HUD"), button -> {
 			config.resetHudPosition();
 			manager.save();
-		}).dimensions(left, y, width, 20).build());
+		}).dimensions(x, y, width, 20).build());
+
+		y += row;
 		addDrawableChild(ButtonWidget.builder(Text.literal("Сброс масштаба HUD"), button -> {
 			config.resetHudScale();
 			manager.save();
-		}).dimensions(right, y, width, 20).build());
+		}).dimensions(x, y, width, 20).build());
 
-		y += row + 8;
+		y += row;
 		addDrawableChild(ButtonWidget.builder(Text.literal("Редактировать HUD"), button -> {
 			HudEditOverlayController.setActive(false);
 			manager.save();
 			if (client != null) {
 				client.setScreen(new HudEditScreen());
 			}
-		}).dimensions(left, y, width, 20).build());
-		addDrawableChild(ButtonWidget.builder(Text.literal("Готово"), button -> close()).dimensions(right, y, width, 20).build());
+		}).dimensions(x, y, width, 20).build());
+
+		y += row;
+		addDrawableChild(ButtonWidget.builder(Text.literal("Бинды NVP-assist"), button -> {
+			manager.save();
+			if (client != null) {
+				client.setScreen(new SpectraHudKeyBindScreen(this));
+			}
+		}).dimensions(x, y, width, 20).build());
+
+		y += row + 8;
+		addDrawableChild(ButtonWidget.builder(Text.literal("Готово"), button -> close()).dimensions(x, y, width, 20).build());
 	}
 
 	@Override

@@ -73,7 +73,7 @@ public class SpectraHudClient implements ClientModInitializer {
 
 		STATE.resolveSuspect(client);
 		SUSPECT_INTERACTION.tick(client, STATE, config());
-		if (STATE.shouldClearMissing(config().autoTeleportToSuspect ? 120 : 45)) {
+		if (STATE.shouldClearMissing(config().autoTeleportToSuspect ? 240 : 45)) {
 			clearSuspect(client, "игрок исчез");
 			return;
 		}
@@ -175,5 +175,9 @@ public class SpectraHudClient implements ClientModInitializer {
 
 	public static SuspectInteractionController getSuspectInteraction() {
 		return SUSPECT_INTERACTION;
+	}
+
+	public static SpectraHudKeyBindings getKeyBindings() {
+		return KEY_BINDINGS;
 	}
 }

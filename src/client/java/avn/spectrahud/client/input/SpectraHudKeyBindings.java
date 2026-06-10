@@ -53,4 +53,20 @@ public class SpectraHudKeyBindings {
 			SpectraHudClient.getSuspectInteraction().openSuspectMenu(client, SpectraHudClient.getState());
 		}
 	}
+
+	public KeyBinding getEditHud() {
+		return editHud;
+	}
+
+	public KeyBinding getToggleHud() {
+		return toggleHud;
+	}
+
+	public KeyBinding getReplayClip() {
+		return replayClip;
+	}
+
+	public KeyBinding getOpenSuspectMenu() {
+		return openSuspectMenu;
+	}
 }

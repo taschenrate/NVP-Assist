@@ -6,14 +6,17 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
+import net.minecraft.util.hit.EntityHitResult;
+import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Vec3d;
 
 import java.util.Optional;
 
 public class SuspectInteractionController {
 	private static final double AUTO_TELEPORT_DISTANCE_SQUARED = 50.0D * 50.0D;
-	private static final double DIRECT_INTERACTION_DISTANCE_SQUARED = 6.0D * 6.0D;
+	private static final double DIRECT_INTERACTION_DISTANCE_SQUARED = 12.0D * 12.0D;
 	private static final int TELEPORT_COOLDOWN_TICKS = 140;
-	private static final int PENDING_INTERACTION_TICKS = 120;
+	private static final int PENDING_INTERACTION_TICKS = 220;
 
 	private int teleportCooldownTicks;
 	private int pendingInteractionTicks;
@@ -47,9 +50,11 @@ public class SuspectInteractionController {
 		}
 
 		Optional<AbstractClientPlayerEntity> suspect = state.getSuspect(client);
-		if (suspect.isPresent() && !isFarFromClient(client, suspect.get(), DIRECT_INTERACTION_DISTANCE_SQUARED)) {
+		if (suspect.isPresent()) {
 			rightClick(client, suspect.get());
-			return;
+			if (!isFarFromClient(client, suspect.get(), DIRECT_INTERACTION_DISTANCE_SQUARED)) {
+				return;
+			}
 		}
 
 		pendingInteractionNick = state.getActiveSuspectName();
@@ -98,9 +103,16 @@ public class SuspectInteractionController {
 			return;
 		}
 
+		Vec3d hitPos = hitboxCenter(suspect);
+		client.interactionManager.interactEntityAtLocation(client.player, suspect, new EntityHitResult(suspect, hitPos), Hand.MAIN_HAND);
 		client.interactionManager.interactEntity(client.player, suspect, Hand.MAIN_HAND);
 		client.player.swingHand(Hand.MAIN_HAND);
 		sendStatus(client, "[НВП] ПКМ по " + suspect.getGameProfile().getName());
+	}
+
+	private Vec3d hitboxCenter(AbstractClientPlayerEntity suspect) {
+		Box box = suspect.getBoundingBox();
+		return new Vec3d((box.minX + box.maxX) * 0.5D, (box.minY + box.maxY) * 0.5D, (box.minZ + box.maxZ) * 0.5D);
 	}
 
 	private boolean isFarFromClient(MinecraftClient client, AbstractClientPlayerEntity suspect, double distanceSquared) {

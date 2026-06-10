@@ -47,28 +47,12 @@ public class VisualRenderer {
 			Vec3d direction = suspect.getRotationVec(tickDelta).normalize();
 			Vec3d end = start.add(direction.multiply(config.viewRayLength));
 			int rayColor = hitsPlayerHitbox(client, suspect, start, end, tickDelta) ? config.rayHitColor : config.rayMissColor;
-			drawThickRay(matrices, lines, camera, start, end, direction, rayColor);
+			drawViewRay(matrices, lines, camera, start, end, rayColor);
 		}
 	}
 
-	private void drawThickRay(MatrixStack matrices, VertexConsumer consumer, Vec3d camera, Vec3d start, Vec3d end, Vec3d direction, int color) {
-		Vec3d side = direction.crossProduct(new Vec3d(0.0D, 1.0D, 0.0D));
-		if (side.lengthSquared() < 1.0E-4D) {
-			side = direction.crossProduct(new Vec3d(1.0D, 0.0D, 0.0D));
-		}
-
-		side = side.normalize().multiply(0.06D);
-		Vec3d up = direction.crossProduct(side).normalize().multiply(0.04D);
-
+	private void drawViewRay(MatrixStack matrices, VertexConsumer consumer, Vec3d camera, Vec3d start, Vec3d end, int color) {
 		drawLine(matrices, consumer, camera, start, end, color, 1.00F);
-		drawLine(matrices, consumer, camera, start.add(side), end.add(side), color, 0.95F);
-		drawLine(matrices, consumer, camera, start.subtract(side), end.subtract(side), color, 0.90F);
-		drawLine(matrices, consumer, camera, start.add(up), end.add(up), color, 0.78F);
-		drawLine(matrices, consumer, camera, start.subtract(up), end.subtract(up), color, 0.78F);
-		drawLine(matrices, consumer, camera, start.add(side).add(up), end.add(side).add(up), color, 0.70F);
-		drawLine(matrices, consumer, camera, start.add(side).subtract(up), end.add(side).subtract(up), color, 0.70F);
-		drawLine(matrices, consumer, camera, start.subtract(side).add(up), end.subtract(side).add(up), color, 0.70F);
-		drawLine(matrices, consumer, camera, start.subtract(side).subtract(up), end.subtract(side).subtract(up), color, 0.70F);
 	}
 
 	private void drawBox(MatrixStack matrices, VertexConsumer consumer, Vec3d camera, Box box, int color, float alpha) {
