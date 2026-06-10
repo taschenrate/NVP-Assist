@@ -49,7 +49,7 @@ public class SpectraHudConfigScreen extends Screen {
 		addToggle(x, y, width, "Луч взгляда", () -> config.showViewRay, value -> config.showViewRay = value);
 
 		y += row;
-		addToggle(x, y, width, "Скрывать голограмму", () -> config.hideAnticheatHologram, value -> config.hideAnticheatHologram = value);
+		addHologramButton(x, y, width);
 
 		y += row;
 		addToggle(x, y, width, "Полоса задержки", () -> config.showHitDelayStrip, value -> config.showHitDelayStrip = value);
@@ -127,6 +127,14 @@ public class SpectraHudConfigScreen extends Screen {
 		}).dimensions(x, y, width, 20).build());
 	}
 
+	private void addHologramButton(int x, int y, int width) {
+		addDrawableChild(ButtonWidget.builder(hologramText(), button -> {
+			config.hideAnticheatHologram = !config.hideAnticheatHologram;
+			button.setMessage(hologramText());
+			manager.save();
+		}).dimensions(x, y, width, 20).build());
+	}
+
 	private void addColorButton(int x, int y, int width, String label, int[] presets, IntSupplier getter, IntConsumer setter) {
 		addDrawableChild(ButtonWidget.builder(colorText(label, getter.getAsInt()), button -> {
 			int current = getter.getAsInt();
@@ -145,6 +153,10 @@ public class SpectraHudConfigScreen extends Screen {
 
 	private Text modeText() {
 		return Text.literal("Режим HUD: " + config.hudMode.title());
+	}
+
+	private Text hologramText() {
+		return Text.literal("Голограмма античита: " + (config.hideAnticheatHologram ? "скрывать" : "показывать"));
 	}
 
 	private static Text toggleText(String label, boolean enabled) {

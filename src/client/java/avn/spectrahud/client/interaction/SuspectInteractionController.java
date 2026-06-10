@@ -20,9 +20,11 @@ public class SuspectInteractionController {
 	private static final double DIRECT_INTERACTION_DISTANCE_SQUARED = 12.0D * 12.0D;
 	private static final int TELEPORT_COOLDOWN_TICKS = 60;
 	private static final int PENDING_INTERACTION_TICKS = 260;
+	private static final int PENDING_TELEPORT_SETTLE_TICKS = 10;
 
 	private int teleportCooldownTicks;
 	private int pendingInteractionTicks;
+	private int pendingTeleportSettleTicks;
 	private String pendingInteractionNick = "";
 
 	public void tick(MinecraftClient client, SpectraHudState state, SpectraHudConfig config) {
@@ -61,14 +63,9 @@ public class SuspectInteractionController {
 			return;
 		}
 
-		Optional<AbstractClientPlayerEntity> suspect = state.getSuspect(client);
-		if (suspect.isPresent() && !isFarFromClient(client, suspect.get(), DIRECT_INTERACTION_DISTANCE_SQUARED)) {
-			rightClick(client, suspect.get());
-			return;
-		}
-
 		pendingInteractionNick = state.getActiveSuspectName();
 		pendingInteractionTicks = PENDING_INTERACTION_TICKS;
+		pendingTeleportSettleTicks = PENDING_TELEPORT_SETTLE_TICKS;
 		sendTeleport(client, pendingInteractionNick, true);
 		sendStatus(client, "[НВП] TPO к " + pendingInteractionNick + ", затем ПКМ");
 	}
@@ -82,7 +79,13 @@ public class SuspectInteractionController {
 		pendingInteractionTicks--;
 		if (!state.hasSuspect() || !state.getActiveSuspectName().equalsIgnoreCase(pendingInteractionNick)) {
 			pendingInteractionTicks = 0;
+			pendingTeleportSettleTicks = 0;
 			pendingInteractionNick = "";
+			return;
+		}
+
+		if (pendingTeleportSettleTicks > 0) {
+			pendingTeleportSettleTicks--;
 			return;
 		}
 
@@ -90,6 +93,7 @@ public class SuspectInteractionController {
 		if (suspect.isPresent() && !isFarFromClient(client, suspect.get(), DIRECT_INTERACTION_DISTANCE_SQUARED)) {
 			rightClick(client, suspect.get());
 			pendingInteractionTicks = 0;
+			pendingTeleportSettleTicks = 0;
 			pendingInteractionNick = "";
 			return;
 		}
@@ -161,6 +165,7 @@ public class SuspectInteractionController {
 	public void reset() {
 		teleportCooldownTicks = 0;
 		pendingInteractionTicks = 0;
+		pendingTeleportSettleTicks = 0;
 		pendingInteractionNick = "";
 	}
 

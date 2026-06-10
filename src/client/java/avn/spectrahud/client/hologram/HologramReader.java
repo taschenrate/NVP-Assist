@@ -28,7 +28,7 @@ public class HologramReader {
 	public void tick(MinecraftClient client, SpectraHudState state, SpectraHudConfig config) {
 		hiddenEntityIds.clear();
 
-		if (!config.hideAnticheatHologram || client.world == null) {
+		if (client.world == null) {
 			data = HologramData.EMPTY;
 			return;
 		}
@@ -54,7 +54,7 @@ public class HologramReader {
 			}
 		}
 
-		if (anticheatCluster) {
+		if (anticheatCluster && config.hideAnticheatHologram) {
 			for (Entity entity : carriers) {
 				hiddenEntityIds.add(entity.getId());
 			}
@@ -68,12 +68,12 @@ public class HologramReader {
 			return false;
 		}
 
-		if (hiddenEntityIds.contains(entity.getId())) {
-			return true;
-		}
-
 		if (!avn.spectrahud.client.SpectraHudClient.config().hideAnticheatHologram) {
 			return false;
+		}
+
+		if (hiddenEntityIds.contains(entity.getId())) {
+			return true;
 		}
 
 		MinecraftClient client = MinecraftClient.getInstance();
@@ -87,7 +87,7 @@ public class HologramReader {
 		}
 
 		Box scanBox = getScanBox(suspect.get());
-		return scanBox.contains(entity.getPos()) && isHologramCarrier(entity) && (data.isPresent() || looksLikeHologram(entity));
+		return scanBox.contains(entity.getPos()) && looksLikeHologram(entity);
 	}
 
 	public void reset() {
@@ -161,6 +161,19 @@ public class HologramReader {
 			Object value = getText.invoke(entity);
 			if (value instanceof Text text) {
 				return text.getString();
+			}
+		} catch (ReflectiveOperationException ignored) {
+		}
+
+		try {
+			Method getData = entity.getClass().getMethod("getData");
+			Object data = getData.invoke(entity);
+			if (data != null) {
+				Method textAccessor = data.getClass().getMethod("text");
+				Object value = textAccessor.invoke(data);
+				if (value instanceof Text text) {
+					return text.getString();
+				}
 			}
 		} catch (ReflectiveOperationException ignored) {
 		}
