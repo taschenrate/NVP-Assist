@@ -22,6 +22,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
+import net.minecraft.world.GameMode;
 
 import java.util.Locale;
 
@@ -55,6 +56,10 @@ public class SpectraHudClient implements ClientModInitializer {
 
 	private static void handleIncomingMessage(Text message) {
 		MinecraftClient client = MinecraftClient.getInstance();
+		if (!isSpectatorMode(client)) {
+			return;
+		}
+
 		if (isBanMessageForActiveSuspect(message)) {
 			clearSuspect(client, "бан");
 			return;
@@ -71,9 +76,15 @@ public class SpectraHudClient implements ClientModInitializer {
 			return;
 		}
 
+		if (!isSpectatorMode(client)) {
+			clearStateSilently();
+			return;
+		}
+
 		STATE.resolveSuspect(client);
 		SUSPECT_INTERACTION.tick(client, STATE, config());
-		if (STATE.shouldClearMissing(config().autoTeleportToSuspect ? 240 : 45)) {
+		boolean waitingForTeleport = config().autoTeleportToSuspect || SUSPECT_INTERACTION.hasPendingInteraction();
+		if (STATE.shouldClearMissing(waitingForTeleport ? 260 : 45)) {
 			clearSuspect(client, "игрок исчез");
 			return;
 		}
@@ -85,6 +96,10 @@ public class SpectraHudClient implements ClientModInitializer {
 	}
 
 	public static void switchSuspect(MinecraftClient client, String nick) {
+		if (!isSpectatorMode(client)) {
+			return;
+		}
+
 		if (STATE.setSuspect(client, nick)) {
 			TARGET_TRACKER.reset();
 			COMBAT_ANALYZER.reset();
@@ -111,6 +126,19 @@ public class SpectraHudClient implements ClientModInitializer {
 		if (client.player != null) {
 			client.player.sendMessage(Text.literal("[НВП] Слежка завершена: " + reason), false);
 		}
+	}
+
+	private static void clearStateSilently() {
+		if (STATE.hasSuspect()) {
+			STATE.clearSuspect();
+		} else {
+			STATE.clearRuntime();
+		}
+		TARGET_TRACKER.reset();
+		COMBAT_ANALYZER.reset();
+		AIM_ANALYZER.reset();
+		HOLOGRAM_READER.reset();
+		SUSPECT_INTERACTION.reset();
 	}
 
 	private static boolean isBanMessageForActiveSuspect(Text message) {
@@ -179,5 +207,13 @@ public class SpectraHudClient implements ClientModInitializer {
 
 	public static SpectraHudKeyBindings getKeyBindings() {
 		return KEY_BINDINGS;
+	}
+
+	public static boolean isSpectatorMode(MinecraftClient client) {
+		if (client == null || client.player == null) {
+			return false;
+		}
+		return client.player.isSpectator()
+				|| (client.interactionManager != null && client.interactionManager.getCurrentGameMode() == GameMode.SPECTATOR);
 	}
 }

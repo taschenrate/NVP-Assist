@@ -20,6 +20,9 @@ public class VisualRenderer {
 		if (client.world == null || client.player == null) {
 			return;
 		}
+		if (!SpectraHudClient.isSpectatorMode(client)) {
+			return;
+		}
 
 		SpectraHudConfig config = SpectraHudClient.config();
 		Optional<AbstractClientPlayerEntity> suspectOptional = SpectraHudClient.getState().getSuspect(client);

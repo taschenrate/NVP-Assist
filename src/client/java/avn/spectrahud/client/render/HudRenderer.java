@@ -35,6 +35,9 @@ public class HudRenderer {
 		if (client.currentScreen instanceof HudEditScreen) {
 			return;
 		}
+		if (!SpectraHudClient.isSpectatorMode(client)) {
+			return;
+		}
 
 		renderHud(context, false);
 	}

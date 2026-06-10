@@ -10,6 +10,10 @@ public class ReplayIntegration {
 		if (client.player == null) {
 			return;
 		}
+		if (!SpectraHudClient.isSpectatorMode(client)) {
+			client.player.sendMessage(Text.literal("[НВП] Доступно только в spectator"), true);
+			return;
+		}
 
 		if (!SpectraHudClient.config().replayClips) {
 			client.player.sendMessage(Text.literal("[НВП] ReplayMod-клипы выключены"), true);
